@@ -1,27 +1,25 @@
-# 1️⃣ Build stage
-FROM eclipse-temurin:22-jdk-alpine AS builder
+FROM eclipse-temurin:21-jdk AS build
 
 WORKDIR /app
 
-# copy everything to the container
-COPY . .
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+COPY src src
 
-# give mvnw permission
 RUN chmod +x mvnw
-
-# build the project
 RUN ./mvnw clean package -DskipTests
 
-# 2️⃣ Run stage
-FROM eclipse-temurin:22-jre-alpine
+FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
-COPY --from=builder /app/target/*.jar app.jar
+COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8001
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
 
 
 
